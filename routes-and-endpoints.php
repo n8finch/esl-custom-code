@@ -1,23 +1,21 @@
 <?php
 
 /**
- * Create the Endpoint
+ * Get post meta from Job Postings and add it to the JSON callback
  */
 
-add_action( 'rest_api_init', function () {
-  register_rest_route( 'esl/v2', '/job-postings', array(
-    'methods' => 'GET',
-    'callback' => 'my_awesome_func',
-    'args' => array(
-      'id' => array(
-        'validate_callback' => function($param, $request, $key) {
-          return is_numeric( $param );
-        }
-      ),
-    ),
-  ) );
-} );
+add_action( 'rest_api_init', 'create_job_posting_meta_field' );
 
+function create_job_posting_meta_field() {
 
-//TODO: get post meta, put into JSON response
-//https://developer.wordpress.org/rest-api/extending-the-rest-api/adding-rest-api-support-for-custom-content-types/
+	register_rest_field( 'job-postings', 'job-posting-meta', array(
+	       'get_callback'    => 'get_job_posting_meta_for_api',
+	       'schema'          => null,
+	    )
+	);
+}
+
+function get_job_posting_meta_for_api( $object ) {
+	$post_id = $object['id'];
+ 	return get_post_meta( $post_id );
+}
